@@ -1,0 +1,16 @@
+%% Plain State of Tension and Deformation (sigma_zz = 0)
+
+function mohr_circle(prop_xx, prop_yy, prop_xy)
+
+prop_mid = (prop_xx + prop_yy)/2;
+A = prop_xx - prop_mid;
+
+radius = sqrt(A^2 + eps_xy^2);
+
+prop_1 = sigma_mid + radius;
+prop_2 = sigma_mid - radius;
+prop_3 = 0;
+
+if prop_3 > prop_1
+    prop_
+end

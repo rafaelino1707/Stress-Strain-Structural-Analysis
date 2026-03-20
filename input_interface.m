@@ -1,0 +1,100 @@
+function input_interface()
+
+    % Create Figure
+    fig = uifigure('Name', 'Tensor Input', 'Position', [100 100 500 420]);
+
+    % Dropdown to choose "Stress" or "Strain" mode
+    uilabel(fig, 'Position', [30 370 100 22], 'Text', 'Tensor type:');
+
+    typeDrop = uidropdown(fig, ...
+        'Position', [120 370 100 22], ...
+        'Items', {'Strain', 'Stress'}, ...
+        'Value', 'Strain');
+
+    % Button to read and display the matrix
+    btn = uibutton(fig, 'push', ...
+        'Text', 'Get Matrix', ...
+        'Position', [250 370 100 25]);
+
+    % Area output
+    outText = uitextarea(fig, ...
+        'Position', [30 20 440 80], ...
+        'Editable', 'off');
+
+    % Labels dos componentes
+    rowNames = {'x','y','z'};
+    colNames = {'x','y','z'};
+
+    compLabels = gobjects(3,3);
+    compFields = gobjects(3,3);
+
+    startX = 120;
+    startY = 300;
+    dx = 110;
+    dy = 70;
+
+    % Criar labels e campos
+    for i = 1:3
+        for j = 1:3
+            compLabels(i,j) = uilabel(fig, ...
+                'Position', [startX + (j-1)*dx, startY - (i-1)*dy + 30, 80, 22], ...
+                'Text', '');
+
+            compFields(i,j) = uieditfield(fig, 'numeric', ...
+                'Position', [startX + (j-1)*dx, startY - (i-1)*dy, 80, 22], ...
+                'Value', 0);
+        end
+    end
+
+    % Atualizar labels iniciais
+    updateLabels();
+
+    % Callback do dropdown
+    typeDrop.ValueChangedFcn = @(src,event) updateLabels();
+
+    % Callback do botão
+    btn.ButtonPushedFcn = @(src,event) getMatrix();
+
+    % -------------------------
+    % Função para atualizar labels
+    % -------------------------
+    function updateLabels()
+        tensorType = typeDrop.Value;
+
+        for i = 1:3
+            for j = 1:3
+                if strcmp(tensorType, 'Strain')
+                    compLabels(i,j).Text = sprintf('\\epsilon_{%s%s}', rowNames{i}, colNames{j});
+                else
+                    compLabels(i,j).Text = sprintf('\\sigma_{%s%s}', rowNames{i}, colNames{j});
+                end
+
+                compLabels(i,j).Interpreter = 'tex';
+            end
+        end
+    end
+
+    % -------------------------
+    % Função para ler matriz
+    % -------------------------
+    function getMatrix()
+        M = zeros(3,3);
+
+        for i = 1:3
+            for j = 1:3
+                M(i,j) = compFields(i,j).Value;
+            end
+        end
+
+        tensorType = typeDrop.Value;
+
+        txt = sprintf('%s matrix:\n\n', tensorType);
+        txt = [txt, mat2str(M,6)];
+
+        outText.Value = splitlines(txt);
+
+        disp([tensorType ' matrix:']);
+        disp(M);
+    end
+
+end
